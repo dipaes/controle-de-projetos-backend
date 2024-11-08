@@ -1,6 +1,5 @@
 package com.controleprojetos.security.jwt;
 
-
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,7 +25,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
-    
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
@@ -37,11 +36,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String username = null;
         String jwtToken = null;
 
+        // Verifique se o cabeçalho contém o token JWT
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7);
             System.out.println("Token extraído: " + jwtToken);
-            
+
             try {
+                // Extraia o nome de usuário do token JWT
                 username = jwtTokenUtil.extractUsername(jwtToken);
                 System.out.println("Nome de usuário extraído: " + username);
             } catch (IllegalArgumentException e) {
@@ -53,6 +54,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             System.out.println("JWT Token does not begin with Bearer String");
         }
 
+        // Valide o token e configure a autenticação
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
             if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
@@ -65,7 +67,4 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
         chain.doFilter(request, response);
     }
-
-
-
 }

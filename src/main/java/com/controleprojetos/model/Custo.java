@@ -1,30 +1,35 @@
 package com.controleprojetos.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.Date;
 
-
-@Getter
-@Setter
 @Data
 @Entity
+@Table(name = "custo_tb")
 public class Custo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "data")
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date data;
+
+    @Column(name = "valor")
     private Double valor;
+
+    @Column(name = "horas_trabalhadas")
     private Integer horasTrabalhadas;
 
-    @ManyToOne
-    @JoinColumn(name = "projeto_id", nullable = false)
-    private Projeto projeto;
+    @Column(name = "centro_custo")
+    private String centroCusto;
 
     @ManyToOne
-    @JoinColumn(name = "fornecedor_id", nullable = false)
-    private Fornecedor fornecedor;
+    @JoinColumn(name = "projeto_id")
+    @JsonBackReference("projeto-custo")
+    private Projeto projeto;
 }

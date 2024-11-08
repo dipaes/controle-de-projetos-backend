@@ -2,6 +2,7 @@ package com.controleprojetos.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.controleprojetos.security.jwt.JwtAuthenticationEntryPoint;
 import com.controleprojetos.security.jwt.JwtRequestFilter;
 import com.controleprojetos.security.jwt.service.JwtUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Configuration
 @EnableWebSecurity
@@ -23,6 +25,7 @@ public class SecurityConfig {
     private final JwtRequestFilter jwtRequestFilter;
     private final JwtUserDetailsService jwtUserDetailsService;
 
+    @Autowired
     public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
                           JwtRequestFilter jwtRequestFilter,
                           JwtUserDetailsService jwtUserDetailsService) {
@@ -31,14 +34,13 @@ public class SecurityConfig {
         this.jwtUserDetailsService = jwtUserDetailsService;
     }
 
-    @SuppressWarnings("deprecation")
-	@Bean
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeRequests(requests -> requests
-                        .requestMatchers("/api/register").permitAll()
-                        .requestMatchers("/authenticate").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/api/register", "/authenticate").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(handling -> handling.authenticationEntryPoint(jwtAuthenticationEntryPoint))
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
@@ -47,8 +49,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @SuppressWarnings("removal")
-	@Bean
+    @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         return http.getSharedObject(AuthenticationManagerBuilder.class)
             .userDetailsService(jwtUserDetailsService)

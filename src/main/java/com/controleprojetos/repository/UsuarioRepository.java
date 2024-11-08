@@ -1,8 +1,10 @@
 package com.controleprojetos.repository;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.controleprojetos.model.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
-    Usuario findByUsuario(String usuario);
+   Optional<Usuario> findByUsuario(String usuario);
 }
